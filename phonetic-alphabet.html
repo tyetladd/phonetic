@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phonetic Alphabet Learning</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            min-width: 400px;
+        }
+        h1 { color: #333; margin-bottom: 40px; font-size: 28px; }
+        .letter-display {
+            font-size: 120px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 30px 0;
+            min-height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .word-display {
+            font-size: 36px;
+            color: #764ba2;
+            margin: 30px 0;
+            min-height: 50px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .word-display.visible { opacity: 1; }
+        .buttons { display: flex; gap: 15px; justify-content: center; margin-top: 40px; }
+        button {
+            padding: 15px 40px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        .check-btn { background-color: #667eea; color: white; }
+        .check-btn:hover {
+            background-color: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .next-btn { background-color: #764ba2; color: white; }
+        .next-btn:hover {
+            background-color: #63408a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+        button:active { transform: translateY(0); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Phonetic Alphabet Learning</h1>
+        <div class="letter-display" id="letterDisplay"></div>
+        <div class="word-display" id="wordDisplay"></div>
+        <div class="buttons">
+            <button class="check-btn" id="checkBtn">Check</button>
+            <button class="next-btn" id="nextBtn">Next</button>
+        </div>
+    </div>
+    <script>
+        const phoneticAlphabet = {
+            'A': 'Alpha', 'B': 'Bravo', 'C': 'Charlie', 'D': 'Delta',
+            'E': 'Echo', 'F': 'Foxtrot', 'G': 'Golf', 'H': 'Hotel',
+            'I': 'India', 'J': 'Juliet', 'K': 'Kilo', 'L': 'Lima',
+            'M': 'Mike', 'N': 'November', 'O': 'Oscar', 'P': 'Papa',
+            'Q': 'Quebec', 'R': 'Romeo', 'S': 'Sierra', 'T': 'Tango',
+            'U': 'Uniform', 'V': 'Victor', 'W': 'Whiskey', 'X': 'X-ray',
+            'Y': 'Yankee', 'Z': 'Zulu'
+        };
+        const letters = Object.keys(phoneticAlphabet);
+        let currentLetter = '';
+        let isAnswerVisible = false;
+        const letterDisplay = document.getElementById('letterDisplay');
+        const wordDisplay = document.getElementById('wordDisplay');
+        const checkBtn = document.getElementById('checkBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        function getRandomLetter() {
+            return letters[Math.floor(Math.random() * letters.length)];
+        }
+        function showNewLetter() {
+            currentLetter = getRandomLetter();
+            letterDisplay.textContent = currentLetter;
+            wordDisplay.textContent = '';
+            wordDisplay.classList.remove('visible');
+            isAnswerVisible = false;
+        }
+        function showAnswer() {
+            wordDisplay.textContent = phoneticAlphabet[currentLetter];
+            wordDisplay.classList.add('visible');
+            isAnswerVisible = true;
+        }
+        checkBtn.addEventListener('click', () => {
+            if (!isAnswerVisible) showAnswer();
+        });
+        nextBtn.addEventListener('click', () => {
+            showNewLetter();
+        });
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (!isAnswerVisible) showAnswer();
+            } else if (e.code === 'ArrowRight') {
+                e.preventDefault();
+                showNewLetter();
+            } else if (e.code === 'ArrowLeft') {
+                e.preventDefault();
+                showNewLetter();
+            }
+        });
+
+        showNewLetter();
+    </script>
+</body>
+</html>
