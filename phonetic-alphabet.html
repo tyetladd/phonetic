@@ -23,19 +23,32 @@
             min-width: 400px;
         }
         h1 { color: #333; margin-bottom: 40px; font-size: 28px; }
+        .lang-badge {
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: white;
+            background-color: #667eea;
+        }
+        .lang-badge.ru { background-color: #764ba2; }
         .letter-display {
             font-size: 120px;
             font-weight: bold;
             color: #667eea;
-            margin: 30px 0;
+            margin: 20px 0 30px;
             min-height: 140px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
+        .letter-display.ru { color: #764ba2; }
         .word-display {
             font-size: 36px;
-            color: #764ba2;
+            color: #333;
             margin: 30px 0;
             min-height: 50px;
             font-weight: 500;
@@ -72,6 +85,7 @@
 <body>
     <div class="container">
         <h1>Phonetic Alphabet Learning</h1>
+        <div><span class="lang-badge" id="langBadge"></span></div>
         <div class="letter-display" id="letterDisplay"></div>
         <div class="word-display" id="wordDisplay"></div>
         <div class="buttons">
@@ -80,7 +94,8 @@
         </div>
     </div>
     <script>
-        const phoneticAlphabet = {
+        // NATO/ICAO spelling alphabet
+        const englishAlphabet = {
             'A': 'Alpha', 'B': 'Bravo', 'C': 'Charlie', 'D': 'Delta',
             'E': 'Echo', 'F': 'Foxtrot', 'G': 'Golf', 'H': 'Hotel',
             'I': 'India', 'J': 'Juliet', 'K': 'Kilo', 'L': 'Lima',
@@ -89,25 +104,53 @@
             'U': 'Uniform', 'V': 'Victor', 'W': 'Whiskey', 'X': 'X-ray',
             'Y': 'Yankee', 'Z': 'Zulu'
         };
-        const letters = Object.keys(phoneticAlphabet);
-        let currentLetter = '';
+
+        // Russian radio alphabet
+        const russianAlphabet = {
+            'А': 'Анна', 'Б': 'Борис', 'В': 'Василий', 'Г': 'Григорий',
+            'Д': 'Дмитрий', 'Е': 'Елена', 'Ж': 'Женя', 'З': 'Зинаида',
+            'И': 'Иван', 'Й': 'Иван краткий', 'К': 'Константин', 'Л': 'Леонид',
+            'М': 'Михаил', 'Н': 'Николай', 'О': 'Ольга', 'П': 'Павел',
+            'Р': 'Роман', 'С': 'Семён', 'Т': 'Татьяна', 'У': 'Ульяна',
+            'Ф': 'Фёдор', 'Х': 'Харитон', 'Ц': 'Цапля', 'Ч': 'Человек',
+            'Ш': 'Шура', 'Щ': 'Щука', 'Ъ': 'Твёрдый знак', 'Ы': 'Еры',
+            'Ь': 'Мягкий знак', 'Э': 'Эхо', 'Ю': 'Юрий', 'Я': 'Яков'
+        };
+
+        // Both alphabets share one shuffled deck, so cards alternate languages at random.
+        const deck = [
+            ...Object.entries(englishAlphabet).map(([letter, word]) => ({ letter, word, lang: 'en' })),
+            ...Object.entries(russianAlphabet).map(([letter, word]) => ({ letter, word, lang: 'ru' }))
+        ];
+        const langLabels = { en: 'English', ru: 'Русский' };
+
+        let currentCard = null;
         let isAnswerVisible = false;
+        const langBadge = document.getElementById('langBadge');
         const letterDisplay = document.getElementById('letterDisplay');
         const wordDisplay = document.getElementById('wordDisplay');
         const checkBtn = document.getElementById('checkBtn');
         const nextBtn = document.getElementById('nextBtn');
-        function getRandomLetter() {
-            return letters[Math.floor(Math.random() * letters.length)];
+        function getRandomCard() {
+            let card;
+            // Avoid showing the same card twice in a row.
+            do {
+                card = deck[Math.floor(Math.random() * deck.length)];
+            } while (currentCard && card === currentCard);
+            return card;
         }
         function showNewLetter() {
-            currentLetter = getRandomLetter();
-            letterDisplay.textContent = currentLetter;
+            currentCard = getRandomCard();
+            langBadge.textContent = langLabels[currentCard.lang];
+            langBadge.classList.toggle('ru', currentCard.lang === 'ru');
+            letterDisplay.textContent = currentCard.letter;
+            letterDisplay.classList.toggle('ru', currentCard.lang === 'ru');
             wordDisplay.textContent = '';
             wordDisplay.classList.remove('visible');
             isAnswerVisible = false;
         }
         function showAnswer() {
-            wordDisplay.textContent = phoneticAlphabet[currentLetter];
+            wordDisplay.textContent = currentCard.word;
             wordDisplay.classList.add('visible');
             isAnswerVisible = true;
         }
