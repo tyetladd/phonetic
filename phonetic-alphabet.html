@@ -23,6 +23,21 @@
             min-width: 400px;
         }
         h1 { color: #333; margin-bottom: 40px; font-size: 28px; }
+        .language-switch {
+            display: inline-flex;
+            gap: 4px;
+            padding: 4px;
+            background: #f0eef6;
+            border-radius: 10px;
+        }
+        .language-btn {
+            padding: 10px 18px;
+            background: transparent;
+            color: #555;
+            font-size: 14px;
+            border-radius: 7px;
+        }
+        .language-btn.active { background: white; color: #333; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15); }
         .letter-display {
             font-size: 120px;
             font-weight: bold;
@@ -72,6 +87,11 @@
 <body>
     <div class="container">
         <h1>Phonetic Alphabet Learning</h1>
+        <div class="language-switch" role="group" aria-label="Card language">
+            <button class="language-btn active" type="button" data-mode="EN" aria-pressed="true">EN</button>
+            <button class="language-btn" type="button" data-mode="RU" aria-pressed="false">RU</button>
+            <button class="language-btn" type="button" data-mode="MIX" aria-pressed="false">MIX</button>
+        </div>
         <div class="letter-display" id="letterDisplay"></div>
         <div class="word-display" id="wordDisplay"></div>
         <div class="buttons">
@@ -80,7 +100,8 @@
         </div>
     </div>
     <script>
-        const phoneticAlphabet = {
+        const phoneticAlphabets = {
+            EN: {
             'A': 'Alpha', 'B': 'Bravo', 'C': 'Charlie', 'D': 'Delta',
             'E': 'Echo', 'F': 'Foxtrot', 'G': 'Golf', 'H': 'Hotel',
             'I': 'India', 'J': 'Juliet', 'K': 'Kilo', 'L': 'Lima',
@@ -88,29 +109,55 @@
             'Q': 'Quebec', 'R': 'Romeo', 'S': 'Sierra', 'T': 'Tango',
             'U': 'Uniform', 'V': 'Victor', 'W': 'Whiskey', 'X': 'X-ray',
             'Y': 'Yankee', 'Z': 'Zulu'
+                        },
+                        RU: {
+            'А': 'Анна', 'Б': 'Борис', 'В': 'Василий', 'Г': 'Григорий',
+            'Д': 'Дмитрий', 'Е': 'Елена', 'Ё': 'Ёлка', 'Ж': 'Женя',
+            'З': 'Зинаида', 'И': 'Иван', 'Й': 'И краткое', 'К': 'Константин',
+            'Л': 'Леонид', 'М': 'Михаил', 'Н': 'Николай', 'О': 'Ольга',
+            'П': 'Павел', 'Р': 'Роман', 'С': 'Семён', 'Т': 'Татьяна',
+            'У': 'Ульяна', 'Ф': 'Фёдор', 'Х': 'Харитон', 'Ц': 'Цапля',
+            'Ч': 'Человек', 'Ш': 'Шура', 'Щ': 'Щука', 'Ъ': 'Твёрдый знак',
+            'Ы': 'Еры', 'Ь': 'Мягкий знак', 'Э': 'Эхо', 'Ю': 'Юрий',
+            'Я': 'Яков'
+                        }
         };
-        const letters = Object.keys(phoneticAlphabet);
-        let currentLetter = '';
+        let currentMode = 'EN';
+        let currentCard = null;
         let isAnswerVisible = false;
         const letterDisplay = document.getElementById('letterDisplay');
         const wordDisplay = document.getElementById('wordDisplay');
         const checkBtn = document.getElementById('checkBtn');
         const nextBtn = document.getElementById('nextBtn');
-        function getRandomLetter() {
-            return letters[Math.floor(Math.random() * letters.length)];
+        const languageButtons = document.querySelectorAll('.language-btn');
+        function getCards() {
+            const languages = currentMode === 'MIX' ? ['EN', 'RU'] : [currentMode];
+            return languages.flatMap(language => Object.entries(phoneticAlphabets[language]).map(([letter, word]) => ({ letter, word })));
         }
         function showNewLetter() {
-            currentLetter = getRandomLetter();
-            letterDisplay.textContent = currentLetter;
+            const cards = getCards();
+            currentCard = cards[Math.floor(Math.random() * cards.length)];
+            letterDisplay.textContent = currentCard.letter;
             wordDisplay.textContent = '';
             wordDisplay.classList.remove('visible');
             isAnswerVisible = false;
         }
         function showAnswer() {
-            wordDisplay.textContent = phoneticAlphabet[currentLetter];
+            wordDisplay.textContent = currentCard.word;
             wordDisplay.classList.add('visible');
             isAnswerVisible = true;
         }
+        languageButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                currentMode = button.dataset.mode;
+                languageButtons.forEach(languageButton => {
+                    const isActive = languageButton === button;
+                    languageButton.classList.toggle('active', isActive);
+                    languageButton.setAttribute('aria-pressed', String(isActive));
+                });
+                showNewLetter();
+            });
+        });
         checkBtn.addEventListener('click', () => {
             if (!isAnswerVisible) showAnswer();
         });
